@@ -1,0 +1,5 @@
+DeathUpdate
+- death screen
+- options
+- pennelty
+- better respawn

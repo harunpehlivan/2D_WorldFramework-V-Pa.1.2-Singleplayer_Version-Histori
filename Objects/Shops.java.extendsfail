@@ -1,0 +1,61 @@
+import java.util.ArrayList;
+
+class Shops{// extends GameVariables{
+    ArrayList<Shop> _shopsArray = new ArrayList<Shop>();
+    // GameVariables passClass;
+
+    public Shops(){
+        _shopsArray.add(new Shop("Shop #0"));
+        _shopsArray.add(new Shop("Shop Alpha"));
+            _shopsArray.get(1).addAvaible(new Item('T',"Pickaxe",'y',"A pickaxe"),1.2,1);
+            _shopsArray.get(1).addAvaible(new Item('_',"Line",'y',"An underscore"),1.5,10);
+            _shopsArray.get(1).addAvaible(new Item('a',"A thing",'y',"I'm not realy shure what that thing is, but I realy want that thing!"),100,5);
+    }
+
+    public void goShopping(int shopNumber_){
+        UI.clear();
+        printShop(shopNumber_);//Move to UI
+    }
+
+    private void printShop(int shopNumber_){
+        Shop shop = _shopsArray.get(shopNumber_);
+        ArrayList<Item> itemsA = shop.getItems();
+        ArrayList<Double> avaiblePrices = new ArrayList<Double>();
+        ArrayList<Integer> avaibleQuantities = new ArrayList<Integer>();
+        
+        int location = 0;
+
+        System.out.println(
+        " ========================="+shop.getName()+"========================= \n"+
+        "\nTo quit press q, to select an item use the WASD keys.");//TODO: Change to a do
+
+        char input = '\0';
+        do{
+            if(input=='w' && location != 0){location--;}
+            if(input=='s' && (location <= 10 && location != itemsA.size()-1)){location++;}
+            UI.clear();
+            System.out.println(
+        " ========================="+shop.getName()+"========================= \n"+
+            "\nTo quit press q, to select an item use the WASD keys.");
+            System.out.println("Your current balance is "+Rules.getCurrencey());
+            for(short i = 0; i < itemsA.size() && i < 9; i++){
+                System.out.print("\t["+(i==location ? "*":" ")+"] '"+UI.getFC(itemsA.get(i).getColor())+itemsA.get(i).getLook()+Rules._CLEAR+"' (x"+avaibleQuantities.get(i)+") : "+itemsA.get(i).getName()+" - \"");
+                if(itemsA.get(i).getDescription().length() > 27){
+                    System.out.println(itemsA.get(i).getDescription().substring(0,27)+"...\"");
+                }else{
+                    System.out.println(itemsA.get(i).getDescription()+"\"");
+                }
+            }
+            System.out.println("\nItem: "+itemsA.get(location).getName());
+            System.out.println("Cost: "+avaiblePrices.get(location)+Rules.getCurrencey());
+            System.out.println("Object Deskcription: "+itemsA.get(location).getDescription());
+            if(input == 'd'){
+                if(avaiblePrices.get(location) <= getPoints()){
+                    // itemsA.get();
+                    System.out.println("Purchased!");
+                }
+            }
+        }while((input = UI.getTypedChr()) != 'q'/*=='w'||input=='a'||input=='s'||input=='d'*/);//!Character.isDigit(
+    }
+
+}

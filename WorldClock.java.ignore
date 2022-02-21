@@ -1,0 +1,132 @@
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+
+public class WorldClock {
+    private int seconds = 0;
+    private WorldBoard worldBoard;
+    private long startedAtMils;
+    final String[] cmd2 = {"/bin/sh", "-c", "stty cooked </dev/tty"};
+
+    public void initalise(WorldBoard worldBoard_) throws Exception {
+        System.out.println("----------WorldClock Started----------");
+        this.worldBoard = worldBoard_;
+
+        boolean keepAlive = true;
+
+        // long mills = System.currentTimeMillis();
+        startedAtMils = System.currentTimeMillis();
+
+        // while(keepAlive){
+        while(keepAlive){
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> future = executor.submit(new Task(worldBoard));
+
+            try {
+                // System.out.println("ERROR- Future Returned!"+future.get((seconds+1)*1000-(System.currentTimeMillis() - startedAtMils), TimeUnit.MILLISECONDS));
+                System.out.println("ERROR- Future Returned!"+future.get(1, TimeUnit.SECONDS));
+            } catch (TimeoutException e) {
+                // System.out.println(e);
+                System.out.println("CMD now");
+                future.cancel(true);
+                Runtime.getRuntime().exec(cmd2).waitFor();
+                System.out.println("Terminated! " + seconds);
+                // System.out.println("getSecCalabrate() = " + getSecCalabrate(seconds)/1000.0);
+            }
+            seconds++;
+            // executor.shutdownNow();
+
+    System.out.println("End of while");
+            // Runtime.getRuntime().exec(cmd2);//.waitFor();
+        }
+            System.out.println("End of while2");
+        // }
+
+    }
+
+    public long getSecCalabrate(int seconds_){//Returnes the number of miliseconds untill next second.
+        // return (seconds+1)*1000-(startedAtMils-System.currentTimeMillis());
+        return (seconds+1)*1000-(System.currentTimeMillis() - startedAtMils);
+    }
+
+}
+
+class Task implements Callable<String> {//Change to extends WorldBoard?
+    private WorldBoard worldBoard;
+    final String[] cmd1 = {"/bin/sh", "-c", "stty raw </dev/tty"};
+    final String[] cmd2 = {"/bin/sh", "-c", "stty cooked </dev/tty"};
+
+    public Task(WorldBoard worldBoard_){
+        worldBoard = worldBoard_;
+    }
+
+    @Override
+    public String call() throws Exception {
+        System.out.print("Start of 'call'");
+        //Everything that needs to run each tick needs to happen during this time.
+        String temp = "";
+
+        try{//@@@
+            Runtime.getRuntime().exec(cmd1).waitFor();
+            // temp=System.in.read()+"";
+            // temp=System.console().readLine()+"";
+
+            char c = (char) System.in.read();
+            System.out.println("===TEST===");
+            switch (c) {
+                case 'w': // up
+                System.out.println("--W! ");
+                break;
+                case 'a': // left
+                System.out.println("--A! ");
+                break;
+                case 's': // right
+                System.out.println("--S! ");
+                break;
+                case 'd': // down
+                System.out.println("--D! ");
+                break;
+                case 'q': // quit
+            }
+
+
+            // Runtime.getRuntime().exec(cmd2).waitFor();
+        System.out.println("END of 'call'");
+
+        }catch(Exception e){
+            System.out.print(e + "Caught...");
+            //Need to terminate now
+            // Thread.currentThread().interrupt();
+            // System.out.print(/*e + */"Caught2...");
+            // Runtime.getRuntime().exec(cmd2);//.waitFor();
+
+            // while(!(e+"").equals("e")){}
+            System.out.println("Gulp = " + temp);
+            // if(temp!="u"){throw new InterruptedException();}
+            System.out.println("Gulp2");
+            // return "I RETURNED";
+        }
+
+
+
+
+        // worldBoard.advance();
+        // worldBoard.printWorld();
+
+        
+
+        Thread.sleep(1050);//Just keep alive untill the timeout- I know, very eneficent.        return "Ready!";//This should never return
+        System.out.println("Gulp2");
+        return "Ready!";//This should never return
+    }
+}
